@@ -4,13 +4,16 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-alloy = { version = "1.0", features = ["full", "node-bindings"] }
+tokio = { version = "1.0", features = ["full"] }
 anyhow = "1.0"
-revm = { version = "29.0", features = ["alloydb"] }
+
 cacache = { version = "13.1", default-features = false, features = [
   "tokio-runtime",
   "mmap",
 ] }
+
+alloy = { version = "1.0", features = ["full", "node-bindings"] }
+revm = { version = "29.0", features = ["alloydb"] }
 
 tracing = { version = "0.1", features = ["log"] }
 tracing-subscriber = { version = "0.3", features = ["env-filter", "chrono"] }
