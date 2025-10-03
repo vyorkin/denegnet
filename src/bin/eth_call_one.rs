@@ -9,6 +9,9 @@ use alloy::rpc::types::TransactionRequest;
 use denegnet::abi::{decode_quote_response, quote_calldata};
 use denegnet::address::{ME, USDC_ADDR, V3_QUOTER_ADDR, WETH_ADDR};
 use denegnet::{constant::ONE_ETHER, setup_tracing};
+use execution_time::ExecutionTime;
+
+// Total: 2 network RPC calls
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -18,6 +21,7 @@ async fn main() -> anyhow::Result<()> {
     let provider = ProviderBuilder::new().connect_http(eth_rpc_url);
     let provider = Arc::new(provider);
 
+    let execution_time = ExecutionTime::start();
     let current_gas_price = provider.get_gas_price().await?;
     let volume = ONE_ETHER.div(U256::from(10));
     let pool_fee = 3000; // 0.03%
@@ -40,6 +44,9 @@ async fn main() -> anyhow::Result<()> {
     let amount_out = decode_quote_response(call_response)?;
 
     println!("{} WETH -> USDC {}", volume, amount_out);
+
+    print!("-> ");
+    execution_time.print_elapsed_time();
 
     Ok(())
 }

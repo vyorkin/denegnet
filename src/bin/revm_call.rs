@@ -14,6 +14,14 @@ use denegnet::{
 };
 use execution_time::ExecutionTime;
 
+// Total: 30 RPC calls
+//
+// Regardless of the tool used for simulation, we have to fetch the same data from the origin node.
+//
+// There are many calls to eth_getBalance and eth_getTransactionCount in the logs output.
+// ETH balances and nonces are not relevant to our simulation.
+// But REVM fetches them by default using `basic_ref` method of `AlloyDB`.
+
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     setup_tracing();
@@ -29,8 +37,11 @@ async fn main() -> anyhow::Result<()> {
 
     let execution_time = ExecutionTime::start();
     let calldata = quote_calldata(WETH_ADDR, USDC_ADDR, volumes[0], pool_fee);
+
     let response = revm_call(ME, V3_QUOTER_ADDR, calldata, &mut cache_db)?;
     let amount_out = decode_quote_response(response)?;
+
+    print!("-> ");
     execution_time.print_elapsed_time();
     println!("{} WETH -> USDC {}", volumes[0], amount_out);
 
@@ -41,6 +52,7 @@ async fn main() -> anyhow::Result<()> {
         let amount_out = decode_quote_response(response)?;
         println!("{} WETH -> USDC {}", volume, amount_out);
     }
+    print!("-> ");
     execution_time.print_elapsed_time();
 
     Ok(())

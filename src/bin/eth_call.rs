@@ -15,6 +15,8 @@ use denegnet::{
 };
 use execution_time::ExecutionTime;
 
+// Total: 10 (+2) RPC network requests
+
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     setup_tracing();
@@ -50,6 +52,7 @@ async fn main() -> anyhow::Result<()> {
         println!("{} WETH -> USDC {}", volume, amount_out);
     }
 
+    print!("-> ");
     execution_time.print_elapsed_time();
 
     Ok(())
