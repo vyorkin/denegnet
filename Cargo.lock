@@ -1627,6 +1627,7 @@ dependencies = [
  "alloy",
  "anyhow",
  "cacache",
+ "execution-time",
  "revm",
  "tokio",
  "tracing",
@@ -1837,6 +1838,12 @@ dependencies = [
  "libc",
  "windows-sys 0.61.1",
 ]
+
+[[package]]
+name = "execution-time"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "71bf1ad5b4addcce54ac7bc818c8ebb1bdedac41c5dd01cef0bf9a86b655ffdc"
 
 [[package]]
 name = "fastrand"

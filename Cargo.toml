@@ -17,3 +17,5 @@ revm = { version = "29.0", features = ["alloydb"] }
 
 tracing = { version = "0.1", features = ["log"] }
 tracing-subscriber = { version = "0.3", features = ["env-filter", "chrono"] }
+
+execution-time = "0.3"

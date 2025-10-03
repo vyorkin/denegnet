@@ -3,8 +3,11 @@ use tracing_subscriber::{
 };
 
 pub mod abi;
+pub mod account;
 pub mod address;
 pub mod constant;
+pub mod helpers;
+pub mod revm;
 
 pub fn setup_tracing() {
     tracing_subscriber::registry()
