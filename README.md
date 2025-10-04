@@ -1,3 +1,3 @@
 # denegnet
 
-If you keep messing around with this bullshit, you definitely won't have more money lol.
+Just following this blog post: https://pawelurbanek.com/revm-alloy-anvil-arbitrage

@@ -46,8 +46,11 @@ async fn main() -> anyhow::Result<()> {
     let usdc_bytecode = Bytecode::new_raw(Bytes::from_str(usdc_bytecode_hex)?);
     let weth_bytecode = Bytecode::new_raw(Bytes::from_str(weth_bytecode_hex)?);
 
-    init_account_with_bytecode(WETH_ADDR, weth_bytecode.clone(), &mut cache_db).await?;
-    init_account_with_bytecode(USDC_ADDR, usdc_bytecode.clone(), &mut cache_db).await?;
+    // cast code c02aaa39b223fe8d0a0e5c4f27ead9083c756cc2 | pbcopy
+    // cast code a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48 | pbcopy
+
+    init_account_with_bytecode(WETH_ADDR, weth_bytecode.clone(), &mut cache_db)?;
+    init_account_with_bytecode(USDC_ADDR, usdc_bytecode.clone(), &mut cache_db)?;
 
     let mocked_balance = U256::MAX.div(U256::from(2));
 

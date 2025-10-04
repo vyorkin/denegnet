@@ -1,3 +1,5 @@
+use std::cmp::min;
+
 use alloy::{
     primitives::{Address, Bytes, U160, U256, aliases::U24},
     sol,
@@ -53,4 +55,33 @@ pub fn quote_calldata(token_in: Address, token_out: Address, amount_in: U256, fe
     };
 
     Bytes::from(quoteExactInputSingleCall { params }.abi_encode())
+}
+
+sol! {
+    function getAmountOut(address pool, bool zeroForOne, uint256 amountIn) external;
+}
+
+pub fn get_amount_out_calldata(
+    pool: Address,
+    token_in: Address,
+    token_out: Address,
+    amount_in: U256,
+) -> Bytes {
+    Bytes::from(
+        getAmountOutCall {
+            pool,
+            zeroForOne: token_in < token_out,
+            amountIn: amount_in,
+        }
+        .abi_encode(),
+    )
+}
+
+pub fn decode_get_amount_out_response(response: Bytes) -> anyhow::Result<u128> {
+    let value = response.to_vec();
+    let last_64_bytes = &value[value.len() - 64..];
+    let (a, b) = <(i128, i128)>::abi_decode(last_64_bytes)?;
+    let value_out = min(a, b);
+    let value_out = -value_out;
+    Ok(value_out as u128)
 }

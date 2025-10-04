@@ -71,9 +71,9 @@ const CACHE_DIR: &str = ".evm_cache";
 // Warning: always make sure to compare the
 // results of your simulations with standard eth_call.
 
-// This approach reduces number of RPC calls by:
-// 1. Caching contract's bytecode.
-// 2. Mocking account's balance and nonce with zero values.
+/// Reduces number of RPC calls by:
+/// * Caching contract's bytecode.
+/// * Mocking account's balance and nonce with zero values.
 pub async fn init_account(
     address: Address,
     cache_db: &mut AlloyCacheDB,
@@ -87,6 +87,7 @@ pub async fn init_account(
             Bytecode::new_raw(bytes)
         }
         Err(_) => {
+            // eth_getCode
             let bytes = provider.get_code_at(address).await?;
             let bytecode = Bytecode::new_raw(bytes.clone());
             cacache::write(CACHE_DIR, cache_key, bytes.to_vec()).await?;
@@ -94,10 +95,12 @@ pub async fn init_account(
         }
     };
 
-    init_account_with_bytecode(address, bytecode, cache_db).await
+    init_account_with_bytecode(address, bytecode, cache_db)
 }
 
-pub async fn init_account_with_bytecode(
+/// Mocks account balance and nonce that prevents extra
+/// calls to eth_getBalance and eth_getTransactionCount.
+pub fn init_account_with_bytecode(
     address: Address,
     bytecode: Bytecode,
     cache_db: &mut AlloyCacheDB,
@@ -115,6 +118,7 @@ pub async fn init_account_with_bytecode(
     Ok(())
 }
 
+/// Mocks account balance.
 pub fn insert_mapping_storage_slot(
     contract: Address,
     slot: U256,
@@ -123,7 +127,35 @@ pub fn insert_mapping_storage_slot(
     cache_db: &mut AlloyCacheDB,
 ) -> anyhow::Result<()> {
     let hashed_balance_slot = keccak256((slot_address, slot).abi_encode());
-
     cache_db.insert_account_storage(contract, hashed_balance_slot.into(), value)?;
     Ok(())
+}
+
+/// Send a transaction and expects the REVERT,
+/// returns the output of REVERT.
+pub fn revm_revert(
+    from: Address,
+    to: Address,
+    calldata: Bytes,
+    cache_db: &mut AlloyCacheDB,
+) -> anyhow::Result<Bytes> {
+    let mut evm = Context::mainnet()
+        .with_db(cache_db)
+        .modify_tx_chained(|tx| {
+            tx.caller = from;
+            tx.kind = TxKind::Call(to);
+            tx.data = calldata;
+            tx.value = U256::ZERO;
+        })
+        .build_mainnet();
+
+    let ref_tx = evm.replay()?;
+    let result = ref_tx.result;
+
+    let value = match result {
+        ExecutionResult::Revert { output: value, .. } => value,
+        _ => unreachable!(),
+    };
+
+    Ok(value)
 }
